@@ -9,9 +9,7 @@ public class BeesAlgoTest {
         System.out.print("Point (");
         for (int j = 0; j < beesAlgo.var; j++) {
             System.out.print(optimalPoint[j]);
-            if(j!=beesAlgo.var-1){
-                System.out.print(",");
-            }
+            if(j!=beesAlgo.var-1) System.out.print(",");
         }
         System.out.println(")");
         System.out.println("Value " + beesAlgo.optimalValue());

@@ -10,18 +10,18 @@ public class BeesAlgo {
 
     public int var = 3;
 
-    public int n = 40;								// liczba pszczol zwiadowcow
-    public int m = 5;								// liczba wybranych miejsc
-    public int e = 4;								// liczba lepszych miejsc
-    public double ngh = 1;							// rozmiar sasiedztwa(%) [0,1]
-    public int nep = 4;								// liczba pszczol wysylanych do lepszych miejsc
-    public int nsp = 2;								// liczba pszczol wyslanych do pozostalych wybranych miejsc
+    public int n = 40;			    // liczba pszczol zwiadowcow
+    public int m = 5;				// liczba wybranych miejsc
+    public int e = 4;				// liczba lepszych miejsc
+    public double ngh = 1;			// rozmiar sasiedztwa(%) [0,1]
+    public int nep = 4;				// liczba pszczol wysylanych do lepszych miejsc
+    public int nsp = 2;				// liczba pszczol wyslanych do pozostalych wybranych miejsc
 
-    public int iteration = 200;						// maksymalna liczba iteracji
+    public int iteration = 200;     // maksymalna liczba iteracji
 
     public int upperLimit = 10;
     public int lowerLimit = -10;
-    public boolean integerize =false;
+    public boolean integerize = false;
 
     public double optimalPoint[];
 
@@ -50,24 +50,18 @@ public class BeesAlgo {
 
     private void init(){
         this.optimalPoint = new double[var + 1];
-        for (int j = 0; j < var + 1; j++) {
-            optimalPoint[j] = 1;
-        }
+        for (int j = 0; j < var + 1; j++) optimalPoint[j] = 1;
     }
 
     public double function(double[] x) {
         double result = 0;
-        for (int j = 0; j < var; j++) {
-            result = result + (x[j]-1) * (x[j]-1);
-        }
+        for (int j = 0; j < var; j++) result = result + (x[j]-1) * (x[j]-1);
         return (-result);
     }
 
     public double random(double high, double low) {
         Random generator = new Random();
-        if(integerize){
-            return (generator.nextInt((int) high - (int) low) + (int) low);
-        }
+        if(integerize) return (generator.nextInt((int) high - (int) low) + (int) low);
         double range = high-low+1;
         double fraction = range*generator.nextDouble();
         return(fraction+low);
@@ -128,21 +122,15 @@ public class BeesAlgo {
 
                 for (int indx = 0; indx < nep; indx++) {
                     double[] x_elite = new double[var];
-                    for (int j = 0; j < var; j++) {
-                        x_elite[j] = this.random(x[j] + ngh, x[j] - ngh);
-                    }
+                    for (int j = 0; j < var; j++) x_elite[j] = this.random(x[j] + ngh, x[j] - ngh);
                     double f_elite = function(x_elite);
                     if (f_elite > f_best) {
-                        for (int j = 0; j < var; j++) {
-                            x_best[j] = x_elite[j];
-                        }
+                        for (int j = 0; j < var; j++) x_best[j] = x_elite[j];
                         f_best = f_elite;
                     }
                 }
 
-                for (int j = 0; j < var; j++) {
-                    searchPoints[i][j] = x_best[j];
-                }
+                for (int j = 0; j < var; j++) searchPoints[i][j] = x_best[j];
                 searchPoints[i][var] = f_best;
 
             }
@@ -159,23 +147,16 @@ public class BeesAlgo {
 
                 for (int indx = 0; indx < nsp; indx++) {
                     double[] x_elite = new double[var];
-                    for (int j = 0; j < var; j++) {
-                        x_elite[j] = this.random(x[j] + ngh, x[j] - ngh);
-                    }
+                    for (int j = 0; j < var; j++) x_elite[j] = this.random(x[j] + ngh, x[j] - ngh);
                     double f_elite = function(x_elite);
                     if (f_elite > f_best) {
-                        for (int j = 0; j < var; j++) {
-                            x_best[j] = x_elite[j];
-                        }
+                        for (int j = 0; j < var; j++) x_best[j] = x_elite[j];
                         f_best = f_elite;
                     }
                 }
 
-                for (int j = 0; j < var; j++) {
-                    searchPoints[i][j] = x_best[j];
-                }
+                for (int j = 0; j < var; j++) searchPoints[i][j] = x_best[j];
                 searchPoints[i][var] = f_best;
-
             }
 
             for (int i = m; i < n; i++) {
@@ -190,9 +171,7 @@ public class BeesAlgo {
 
         sort(searchPoints);
 
-        for (int j = 0; j < var; j++) {
-            optimalPoint[j] = searchPoints[0][j];
-        }
+        for (int j = 0; j < var; j++) optimalPoint[j] = searchPoints[0][j];
         optimalPoint[var] = -searchPoints[0][var];
     }
 
@@ -202,10 +181,7 @@ public class BeesAlgo {
 
     public double[] optimalPoint(){
         double[] result = new double[var];
-        for (int j = 0; j < var; j++) {
-            result[j]=optimalPoint[j];
-        }
+        for (int j = 0; j < var; j++) result[j]=optimalPoint[j];
         return(result);
     }
-
 }
