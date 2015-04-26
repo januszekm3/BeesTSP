@@ -59,8 +59,8 @@ public class BeesAlgo {
         LineNumberReader lnr = null;
 
         try {
-            fis = new FileInputStream("E:\\Semestr VI\\Badania operacyjne\\Project beesAlgo\\TSPLIB\\berlin51.tsp");
-            lnr = new LineNumberReader(new FileReader("E:\\Semestr VI\\Badania operacyjne\\Project beesAlgo\\TSPLIB\\berlin51.tsp"));
+            fis = new FileInputStream("E:\\Semestr VI\\Badania operacyjne\\Project beesAlgo\\TSPLIB\\berlin52.tsp");
+            lnr = new LineNumberReader(new FileReader("E:\\Semestr VI\\Badania operacyjne\\Project beesAlgo\\TSPLIB\\berlin52.tsp"));
             lnr.skip(Long.MAX_VALUE);
             reader = new BufferedReader(new InputStreamReader(fis));
             //System.out.println(lnr.getLineNumber()+1);
@@ -76,19 +76,15 @@ public class BeesAlgo {
                 line = reader.readLine();
             }
         } catch (FileNotFoundException ex) {
-//            Logger.getLogger(BufferedReaderExample.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
-  //          Logger.getLogger(BufferedReaderExample.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
             try {
                 reader.close();
                 fis.close();
                 lnr.close();
             } catch (IOException ex) {
-                ///            Logger.getLogger(BufferedReaderExample.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        //System.out.println(tsp1);
     }
 
     public void setDistances () {
@@ -100,7 +96,51 @@ public class BeesAlgo {
     }
 
     public void generateFirstSolution () {
+        double bestSolution, currentBestSolution, localBestSolution;
+        int index;
+        boolean visitedCities[] = new boolean[citiesCounter];
+        boolean flag;
+        bestSolution = Double.MAX_VALUE;
 
+        //kazde miasto moze byc miastem poczatkowym
+        for (int i = 0; i < citiesCounter; i++) {
+            index = i;
+            flag = true;
+            currentBestSolution = 0;
+            for (int j = 0; j < citiesCounter; j++) visitedCities[j] = false;
+            visitedCities[i] = true;
+
+            //zaczynamy z poczatkowego miasta, wykonuj dopoki nie przejdziemy po wsztkich
+            while (flag){
+                localBestSolution = Double.MAX_VALUE;
+                flag = false;   //zeby sie nie zapetlic
+
+                //dla danego miasta przechodze po wszystkich sasiadach
+                for (int k = 0; k < citiesCounter; k++) {
+
+                    //kontrola - czy nie porownujemy miasta z samym soba; czy dystans lepszy od lokalnego;
+                    //czy nie bylismy juz w tym miescie
+                    if ((distances[index][k] > 0) && (distances[index][k] < localBestSolution) && (visitedCities[k] == false)) {
+                        localBestSolution = distances[index][k];
+                        index = k;
+                    }
+                }
+
+                visitedCities[index] = true;
+                currentBestSolution += localBestSolution;
+
+                //kontrola - czy przeszlismy juz po wszystich miastach
+                for (int j = 0; j < citiesCounter; j++) if (visitedCities[j] == false) flag = true;
+            }
+
+            //najlepsze rozwiazanie z danego miasta poczatkowego
+            //dodajemy odleglosc od ostatniego miasta do poczatkowego
+            currentBestSolution += distances[i][index];
+
+            //najlepsze rozwiazanie z dowolnego miasta
+            if (currentBestSolution < bestSolution) bestSolution = currentBestSolution;
+        }
+        System.out.println("best " + bestSolution);
     }
 
     private void init(){
