@@ -9,42 +9,41 @@ import java.util.Random;
 
 public class BeesAlgo {
 
-    public int beesSentToBetterPlaces = 4;      // liczba pszczol wysylanych do lepszych miejsc
-    public int beesSentToOtherPlaces = 2;       // liczba pszczol wyslanych do pozostalych wybranych miejsc
-    public int betterPlaces = 4;                // liczba lepszych miejsc
-    public int chosenPlaces = 5;                // liczba wybranych miejsc
-    public int iteration = 200;                 // maksymalna liczba iteracji
-    public int scoutBees = 10000;                  // liczba pszczol zwiadowcow
-    public int lowerLimit = -10;
-    public int upperLimit = 10;
-    public int var = 3;
+    public int beesSentToBetterPlaces;      // liczba pszczol wysylanych do lepszych miejsc
+    public int beesSentToOtherPlaces;       // liczba pszczol wyslanych do pozostalych wybranych miejsc
+    public int betterPlaces;                // liczba lepszych miejsc
+    public int chosenPlaces;                // liczba wybranych miejsc
+    public int iteration;                   // maksymalna liczba iteracji
+    public int scoutBees;                   // liczba pszczol zwiadowcow
+    public int lowerLimit;
+    public int upperLimit;
+    public int var;
     public int citiesCounter;
 
-    public double neighborhoodSize = 1;         // rozmiar sasiedztwa(%) [0,1]
+    private int cities [][];
+
+    public double neighborhoodSize;         // rozmiar sasiedztwa(%) [0,1]
+
     public double optimalPoint[];
+    private double distances [][];
 
     public boolean integerize = false;
 
-    private int cities [][];
-    private double distances [][];
-
     public BeesAlgo(){
-
     }
 
-
-    public BeesAlgo(int scoutBees, int chosenPlaces, int betterPlaces, double neighborhoodSize,
-                    int beesSentToBetterPlaces, int beesSentToOtherPlaces, int iteration, int upperLimit,
-                    int lowerLimit, boolean integerize){
-        this.scoutBees = scoutBees;
-        this.chosenPlaces = chosenPlaces;
+    public BeesAlgo(boolean integerize, double neighborhoodSize, int beesSentToBetterPlaces, int beesSentToOtherPlaces,
+                    int betterPlaces, int chosenPlaces, int iteration, int lowerLimit, int scoutBees, int upperLimit){
+        this.integerize = integerize;
         this.neighborhoodSize = neighborhoodSize;
         this.beesSentToBetterPlaces = beesSentToBetterPlaces;
         this.beesSentToOtherPlaces = beesSentToOtherPlaces;
+        this.betterPlaces = betterPlaces;
+        this.chosenPlaces = chosenPlaces;
         this.iteration = iteration;
-        this.upperLimit = upperLimit;
         this.lowerLimit = lowerLimit;
-        this.integerize = integerize;
+        this.scoutBees = scoutBees;
+        this.upperLimit = upperLimit;
         init();
     }
 
@@ -54,11 +53,10 @@ public class BeesAlgo {
         LineNumberReader lnr = null;
 
         try {
-            fis = new FileInputStream("C:\\Users\\Vanquis\\IdeaProjects\\BeesTSP\\TSPLIB\\berlin52.tsp");
-            lnr = new LineNumberReader(new FileReader("C:\\Users\\Vanquis\\IdeaProjects\\BeesTSP\\TSPLIB\\berlin52.tsp"));
+            fis = new FileInputStream("C:\\Users\\Janusz\\IdeaProjects\\BeesTSP\\TSPLIB\\ex.tsp");
+            lnr = new LineNumberReader(new FileReader("C:\\Users\\Janusz\\IdeaProjects\\BeesTSP\\TSPLIB\\ex.tsp"));
             lnr.skip(Long.MAX_VALUE);
             reader = new BufferedReader(new InputStreamReader(fis));
-            //System.out.println(lnr.getLineNumber()+1);
             citiesCounter = lnr.getLineNumber()+1;
             cities = new int[2][citiesCounter];
             distances = new double[citiesCounter][citiesCounter];
@@ -70,14 +68,16 @@ public class BeesAlgo {
                 cities[1][i++] = Integer.parseInt(parts[2]);    //y
                 line = reader.readLine();
             }
-        } catch (FileNotFoundException ex) {
-        } catch (IOException ex) {
+        } catch (IOException e) {
+            e.printStackTrace();
         } finally {
             try {
+                assert reader != null;
                 reader.close();
                 fis.close();
                 lnr.close();
-            } catch (IOException ex) {
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
     }
@@ -115,10 +115,10 @@ public class BeesAlgo {
 
                     //kontrola - czy nie porownujemy miasta z samym soba; czy dystans lepszy od lokalnego;
                     //czy nie bylismy juz w tym miescie
-                    if ((distances[index][k] > 0) && (distances[index][k] < localBestSolution) && (visitedCities[k] == false)) {
+                    if ((distances[index][k] > 0) && (distances[index][k] < localBestSolution) && (!visitedCities[k])) {
                         localBestSolution = distances[index][k];
-                        System.out.println("local: " + localBestSolution);
                         index = k;
+                        break;
                     }
                 }
 
@@ -126,22 +126,18 @@ public class BeesAlgo {
                 currentBestSolution += localBestSolution;
 
                 //kontrola - czy przeszlismy juz po wszystich miastach
-                for (int j = 0; j < citiesCounter; j++) if (visitedCities[j] == false) flag = true;
+                for (int j = 0; j < citiesCounter; j++) if (!visitedCities[j]) flag = true;
             }
 
             //najlepsze rozwiazanie z danego miasta poczatkowego
             //dodajemy odleglosc od ostatniego miasta do poczatkowego
-
-
-            System.out.println("Current best1: " + currentBestSolution);
             currentBestSolution += distances[i][index];
-            System.out.println("Dystans powrotny: " + distances[i][index]);
-            System.out.println("Current best: " + currentBestSolution);
-            System.out.println("next");
+
             //najlepsze rozwiazanie z dowolnego miasta
             if (currentBestSolution < bestSolution) bestSolution = currentBestSolution;
+            System.out.println();
         }
-        System.out.println("best " + bestSolution);
+        System.out.println("Nearest neighbor heuristics best result: " + bestSolution);
     }
 
     public void init(){
@@ -154,28 +150,21 @@ public class BeesAlgo {
     public int[] fullRandom(){
         boolean visitedCities[] = new boolean[citiesCounter];
         int citiesOrder[] = new int[citiesCounter];
-        for(int i = 0; i < citiesCounter; i++){
-            visitedCities[i] = false;
-        }
+        for(int i = 0; i < citiesCounter; i++) visitedCities[i] = false;
         Random gen = new Random();
         for(int i = 0; i < citiesCounter; i++){
             int tmp = gen.nextInt(citiesCounter);
-            while(visitedCities[tmp]){
-                tmp = gen.nextInt(citiesCounter);
-            }
+            while(visitedCities[tmp]) tmp = gen.nextInt(citiesCounter);
             visitedCities[tmp] = true;
             citiesOrder[i] = tmp;
         }
         return citiesOrder;
     }
 
-
     public double function(int[] x) {
         double distanceCovered = 0;
-        for(int i = 0; i < citiesCounter - 1 ; i++){
-            distanceCovered += distances[x[i]][x[i+1]];
-        }
-        distanceCovered+=distances[x[citiesCounter-1]][x[0]];
+        for(int i = 0; i < citiesCounter - 1 ; i++) distanceCovered += distances[x[i]][x[i+1]];
+        distanceCovered += distances[x[citiesCounter-1]][x[0]];
         return distanceCovered;
     }
 /*
@@ -218,24 +207,18 @@ public class BeesAlgo {
         int[][] searchPoints = new int[scoutBees][var + 1];
         double [] beeScoutResults = new double[scoutBees];
         for (int i = 0; i < scoutBees; i++) {
-
             int[] tmpX = new int[var];
             tmpX = this.fullRandom();
-            for(int j = 0; j < var; j++) {
-                searchPoints[i][j] = tmpX[j];
-            }
+            for(int j = 0; j < var; j++) searchPoints[i][j] = tmpX[j];
             double tmp = function(tmpX);
             beeScoutResults[i] = tmp;
             //searchPoints[i][var] = tmp;
         }
         double minimum = Double.MAX_VALUE;
         for (int i = 0; i < scoutBees; i++){
-            if(minimum > beeScoutResults[i]){
-                minimum = beeScoutResults[i];
-            }
+            if(minimum > beeScoutResults[i]) minimum = beeScoutResults[i];
         }
-        System.out.println("Prawidlowy " + minimum);
-
+        System.out.println("Random result: " + minimum);
 
         /*
         for (int itr = 1; itr <= iteration; itr++) {
@@ -308,14 +291,13 @@ public class BeesAlgo {
         */
     }
 
-
     public double optimalValue(){
         return(optimalPoint[var]);
     }
 
     public double[] optimalPoint(){
         double[] result = new double[var];
-        for (int j = 0; j < var; j++) result[j]=optimalPoint[j];
+        for (int j = 0; j < var; j++) result[j] = optimalPoint[j];
         return(result);
     }
 }
