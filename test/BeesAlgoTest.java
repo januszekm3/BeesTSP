@@ -1,10 +1,12 @@
+import java.io.FileNotFoundException;
+
 /**
  * Created by Janusz on 21-04-2015.
  */
 public class BeesAlgoTest {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws FileNotFoundException {
         BeesAlgo beesAlgo = new BeesAlgo();
-        beesAlgo.run();
+        /*beesAlgo.run();
         double[] optimalPoint=beesAlgo.optimalPoint();
         System.out.print("Point (");
         for (int j = 0; j < beesAlgo.var; j++) {
@@ -12,6 +14,9 @@ public class BeesAlgoTest {
             if(j!=beesAlgo.var-1) System.out.print(",");
         }
         System.out.println(")");
-        System.out.println("Value " + beesAlgo.optimalValue());
+        System.out.println("Value " + beesAlgo.optimalValue());*/
+        beesAlgo.startAlgo();
+        beesAlgo.setDistances();
+        beesAlgo.generateFirstSolution();
     }
 }

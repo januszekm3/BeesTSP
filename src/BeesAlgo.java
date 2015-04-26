@@ -2,6 +2,7 @@
  * Created by Janusz on 21-04-2015.
  */
 
+import java.io.*;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Random;
@@ -17,11 +18,15 @@ public class BeesAlgo {
     public int lowerLimit = -10;
     public int upperLimit = 10;
     public int var = 3;
+    public int citiesCounter;
 
     public double neighborhoodSize = 1;         // rozmiar sasiedztwa(%) [0,1]
     public double optimalPoint[];
 
     public boolean integerize = false;
+
+    private int cities [][];
+    private double distances [][];
 
     public BeesAlgo(){
         init();
@@ -46,6 +51,56 @@ public class BeesAlgo {
         this.lowerLimit = lowerLimit;
         this.integerize = integerize;
         init();
+    }
+
+    public void startAlgo() throws FileNotFoundException {
+        FileInputStream fis = null;
+        BufferedReader reader = null;
+        LineNumberReader lnr = null;
+
+        try {
+            fis = new FileInputStream("E:\\Semestr VI\\Badania operacyjne\\Project beesAlgo\\TSPLIB\\berlin51.tsp");
+            lnr = new LineNumberReader(new FileReader("E:\\Semestr VI\\Badania operacyjne\\Project beesAlgo\\TSPLIB\\berlin51.tsp"));
+            lnr.skip(Long.MAX_VALUE);
+            reader = new BufferedReader(new InputStreamReader(fis));
+            //System.out.println(lnr.getLineNumber()+1);
+            citiesCounter = lnr.getLineNumber()+1;
+            cities = new int[2][citiesCounter];
+            distances = new double[citiesCounter][citiesCounter];
+            String line = reader.readLine();
+            int i = 0;
+            while(line != null){
+                String[] parts = line.split(" ");
+                cities[0][i] = Integer.parseInt(parts[1]);      //x
+                cities[1][i++] = Integer.parseInt(parts[2]);    //y
+                line = reader.readLine();
+            }
+        } catch (FileNotFoundException ex) {
+//            Logger.getLogger(BufferedReaderExample.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+  //          Logger.getLogger(BufferedReaderExample.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            try {
+                reader.close();
+                fis.close();
+                lnr.close();
+            } catch (IOException ex) {
+                ///            Logger.getLogger(BufferedReaderExample.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        //System.out.println(tsp1);
+    }
+
+    public void setDistances () {
+        for (int i = 0; i < citiesCounter; i++)
+            for (int j = 0; j < citiesCounter; j++) {
+                distances[i][j] = distances[j][i] = Math.sqrt((cities[0][i] - cities[0][j]) * (cities[0][i] - cities[0][j])
+                        + (cities[1][i] - cities[1][j]) * (cities[1][i] - cities[1][j]));
+            }
+    }
+
+    public void generateFirstSolution () {
+
     }
 
     private void init(){
