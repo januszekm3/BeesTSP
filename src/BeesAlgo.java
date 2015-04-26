@@ -8,22 +8,20 @@ import java.util.Random;
 
 public class BeesAlgo {
 
+    public int beesSentToBetterPlaces = 4;      // liczba pszczol wysylanych do lepszych miejsc
+    public int beesSentToOtherPlaces = 2;       // liczba pszczol wyslanych do pozostalych wybranych miejsc
+    public int betterPlaces = 4;                // liczba lepszych miejsc
+    public int chosenPlaces = 5;                // liczba wybranych miejsc
+    public int iteration = 200;                 // maksymalna liczba iteracji
+    public int scoutBees = 40;                  // liczba pszczol zwiadowcow
+    public int lowerLimit = -10;
+    public int upperLimit = 10;
     public int var = 3;
 
-    public int n = 40;			    // liczba pszczol zwiadowcow
-    public int m = 5;				// liczba wybranych miejsc
-    public int e = 4;				// liczba lepszych miejsc
-    public double ngh = 1;			// rozmiar sasiedztwa(%) [0,1]
-    public int nep = 4;				// liczba pszczol wysylanych do lepszych miejsc
-    public int nsp = 2;				// liczba pszczol wyslanych do pozostalych wybranych miejsc
-
-    public int iteration = 200;     // maksymalna liczba iteracji
-
-    public int upperLimit = 10;
-    public int lowerLimit = -10;
-    public boolean integerize = false;
-
+    public double neighborhoodSize = 1;         // rozmiar sasiedztwa(%) [0,1]
     public double optimalPoint[];
+
+    public boolean integerize = false;
 
     public BeesAlgo(){
         init();
@@ -34,17 +32,19 @@ public class BeesAlgo {
         init();
     }
 
-    public BeesAlgo(int var, int n, int m, int e, double ngh, int nep, int nsp, int iteration, int upperLimit, int lowerLimit, boolean integerize){
-        this.var=var;
-        this.n=n;
-        this.m=m;
-        this.ngh=ngh;
-        this.nep=nep;
-        this.nsp=nsp;
-        this.iteration=iteration;
-        this.upperLimit=upperLimit;
-        this.lowerLimit=lowerLimit;
-        this.integerize=integerize;
+    public BeesAlgo(int var, int scoutBees, int chosenPlaces, int betterPlaces, double neighborhoodSize,
+                    int beesSentToBetterPlaces, int beesSentToOtherPlaces, int iteration, int upperLimit,
+                    int lowerLimit, boolean integerize){
+        this.var = var;
+        this.scoutBees = scoutBees;
+        this.chosenPlaces = chosenPlaces;
+        this.neighborhoodSize = neighborhoodSize;
+        this.beesSentToBetterPlaces = beesSentToBetterPlaces;
+        this.beesSentToOtherPlaces = beesSentToOtherPlaces;
+        this.iteration = iteration;
+        this.upperLimit = upperLimit;
+        this.lowerLimit = lowerLimit;
+        this.integerize = integerize;
         init();
     }
 
@@ -95,9 +95,9 @@ public class BeesAlgo {
     }
 
     public void run() {
-        double searchPoints[][] = new double[n][var + 1];
+        double searchPoints[][] = new double[scoutBees][var + 1];
 
-        for (int i = 0; i < n; i++) {
+        for (int i = 0; i < scoutBees; i++) {
             double[] tmpX = new double[var];
             for (int j = 0; j < var; j++) {
                 searchPoints[i][j] = this.random(upperLimit, lowerLimit);
@@ -110,7 +110,7 @@ public class BeesAlgo {
         for (int itr = 1; itr <= iteration; itr++) {
             sort(searchPoints);
 
-            for (int i = 0; i < e; i++) {
+            for (int i = 0; i < betterPlaces; i++) {
                 double[] x = new double[var];
                 double[] x_best = new double[var];
                 for (int j = 0; j < var; j++) {
@@ -120,34 +120,10 @@ public class BeesAlgo {
                 double f = searchPoints[i][var];
                 double f_best = f;
 
-                for (int indx = 0; indx < nep; indx++) {
+                for (int indx = 0; indx < beesSentToBetterPlaces; indx++) {
                     double[] x_elite = new double[var];
-                    for (int j = 0; j < var; j++) x_elite[j] = this.random(x[j] + ngh, x[j] - ngh);
-                    double f_elite = function(x_elite);
-                    if (f_elite > f_best) {
-                        for (int j = 0; j < var; j++) x_best[j] = x_elite[j];
-                        f_best = f_elite;
-                    }
-                }
-
-                for (int j = 0; j < var; j++) searchPoints[i][j] = x_best[j];
-                searchPoints[i][var] = f_best;
-
-            }
-
-            for (int i = e; i < m; i++) {
-                double[] x = new double[var];
-                double[] x_best = new double[var];
-                for (int j = 0; j < var; j++) {
-                    x[j] = searchPoints[i][j];
-                    x_best[j] = x[j];
-                }
-                double f = searchPoints[i][var];
-                double f_best = f;
-
-                for (int indx = 0; indx < nsp; indx++) {
-                    double[] x_elite = new double[var];
-                    for (int j = 0; j < var; j++) x_elite[j] = this.random(x[j] + ngh, x[j] - ngh);
+                    for (int j = 0; j < var; j++)
+                        x_elite[j] = this.random(x[j] + neighborhoodSize, x[j] - neighborhoodSize);
                     double f_elite = function(x_elite);
                     if (f_elite > f_best) {
                         for (int j = 0; j < var; j++) x_best[j] = x_elite[j];
@@ -159,7 +135,32 @@ public class BeesAlgo {
                 searchPoints[i][var] = f_best;
             }
 
-            for (int i = m; i < n; i++) {
+            for (int i = betterPlaces; i < chosenPlaces; i++) {
+                double[] x = new double[var];
+                double[] x_best = new double[var];
+                for (int j = 0; j < var; j++) {
+                    x[j] = searchPoints[i][j];
+                    x_best[j] = x[j];
+                }
+
+                double f = searchPoints[i][var];
+                double f_best = f;
+
+                for (int indx = 0; indx < beesSentToOtherPlaces; indx++) {
+                    double[] x_elite = new double[var];
+                    for (int j = 0; j < var; j++) x_elite[j] = this.random(x[j] + neighborhoodSize, x[j] - neighborhoodSize);
+                    double f_elite = function(x_elite);
+                    if (f_elite > f_best) {
+                        for (int j = 0; j < var; j++) x_best[j] = x_elite[j];
+                        f_best = f_elite;
+                    }
+                }
+
+                for (int j = 0; j < var; j++) searchPoints[i][j] = x_best[j];
+                searchPoints[i][var] = f_best;
+            }
+
+            for (int i = chosenPlaces; i < scoutBees; i++) {
                 double[] tmpX = new double[var];
                 for (int j = 0; j < var; j++) {
                     searchPoints[i][j] = this.random(upperLimit, lowerLimit);
