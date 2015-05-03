@@ -53,8 +53,8 @@ public class BeesAlgo {
         LineNumberReader lnr = null;
 
         try {
-            fis = new FileInputStream("C:\\Users\\Janusz\\IdeaProjects\\BeesTSP\\TSPLIB\\ex.tsp");
-            lnr = new LineNumberReader(new FileReader("C:\\Users\\Janusz\\IdeaProjects\\BeesTSP\\TSPLIB\\ex.tsp"));
+            fis = new FileInputStream("C:\\Users\\Vanquis\\IdeaProjects\\BeesTSP\\TSPLIB\\berlin52.tsp");
+            lnr = new LineNumberReader(new FileReader("C:\\Users\\Vanquis\\IdeaProjects\\BeesTSP\\TSPLIB\\berlin52.tsp"));
             lnr.skip(Long.MAX_VALUE);
             reader = new BufferedReader(new InputStreamReader(fis));
             citiesCounter = lnr.getLineNumber()+1;
@@ -135,7 +135,7 @@ public class BeesAlgo {
 
             //najlepsze rozwiazanie z dowolnego miasta
             if (currentBestSolution < bestSolution) bestSolution = currentBestSolution;
-            System.out.println();
+            //System.out.println();
         }
         System.out.println("Nearest neighbor heuristics best result: " + bestSolution);
     }
@@ -143,18 +143,22 @@ public class BeesAlgo {
     public void init(){
         var = citiesCounter;
         this.optimalPoint = new double[var + 1];
-        for (int j = 0; j < var + 1; j++) optimalPoint[j] = 1;
+        for (int j = 0; j < var + 1; j++) {
+            optimalPoint[j] = 1;
+        }
     }
 
 
-    public int[] fullRandom(){
+    public int[] fullRandom(){//pszczoly zwiadowcy
         boolean visitedCities[] = new boolean[citiesCounter];
         int citiesOrder[] = new int[citiesCounter];
         for(int i = 0; i < citiesCounter; i++) visitedCities[i] = false;
         Random gen = new Random();
         for(int i = 0; i < citiesCounter; i++){
             int tmp = gen.nextInt(citiesCounter);
-            while(visitedCities[tmp]) tmp = gen.nextInt(citiesCounter);
+            while(visitedCities[tmp]) {
+                tmp = gen.nextInt(citiesCounter);
+            }
             visitedCities[tmp] = true;
             citiesOrder[i] = tmp;
         }
@@ -207,11 +211,12 @@ public class BeesAlgo {
         int[][] searchPoints = new int[scoutBees][var + 1];
         double [] beeScoutResults = new double[scoutBees];
         for (int i = 0; i < scoutBees; i++) {
-            int[] tmpX = new int[var];
-            tmpX = this.fullRandom();
-            for(int j = 0; j < var; j++) searchPoints[i][j] = tmpX[j];
+            int[] tmpX = this.fullRandom();
+            for(int j = 0; j < var; j++) {
+                searchPoints[i][j] = tmpX[j];
+            }
             double tmp = function(tmpX);
-            beeScoutResults[i] = tmp;
+            beeScoutResults[i] = tmp;   //zapis wyniku
             //searchPoints[i][var] = tmp;
         }
         double minimum = Double.MAX_VALUE;
@@ -219,6 +224,22 @@ public class BeesAlgo {
             if(minimum > beeScoutResults[i]) minimum = beeScoutResults[i];
         }
         System.out.println("Random result: " + minimum);
+
+        //wysylanie nastepnych N pszczol do K miejsc, czyli wybieranie K podzbiorów rozwiazania i losowe permutowanie ich na N sposobow
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         /*
         for (int itr = 1; itr <= iteration; itr++) {
