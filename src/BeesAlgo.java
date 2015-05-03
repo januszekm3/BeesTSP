@@ -53,8 +53,8 @@ public class BeesAlgo {
         LineNumberReader lnr = null;
 
         try {
-            fis = new FileInputStream("C:\\Users\\Vanquis\\IdeaProjects\\BeesTSP\\TSPLIB\\berlin52.tsp");
-            lnr = new LineNumberReader(new FileReader("C:\\Users\\Vanquis\\IdeaProjects\\BeesTSP\\TSPLIB\\berlin52.tsp"));
+            fis = new FileInputStream("C:\\Users\\Janusz\\IdeaProjects\\BeesTSP\\TSPLIB\\ex.tsp");
+            lnr = new LineNumberReader(new FileReader("C:\\Users\\Janusz\\IdeaProjects\\BeesTSP\\TSPLIB\\ex.tsp"));
             lnr.skip(Long.MAX_VALUE);
             reader = new BufferedReader(new InputStreamReader(fis));
             citiesCounter = lnr.getLineNumber()+1;
@@ -135,7 +135,6 @@ public class BeesAlgo {
 
             //najlepsze rozwiazanie z dowolnego miasta
             if (currentBestSolution < bestSolution) bestSolution = currentBestSolution;
-            //System.out.println();
         }
         System.out.println("Nearest neighbor heuristics best result: " + bestSolution);
     }
@@ -143,22 +142,18 @@ public class BeesAlgo {
     public void init(){
         var = citiesCounter;
         this.optimalPoint = new double[var + 1];
-        for (int j = 0; j < var + 1; j++) {
-            optimalPoint[j] = 1;
-        }
+        for (int j = 0; j < var + 1; j++) optimalPoint[j] = 1;
     }
 
 
-    public int[] fullRandom(){//pszczoly zwiadowcy
+    public int[] fullRandom(){      //pszczoly zwiadowcy
         boolean visitedCities[] = new boolean[citiesCounter];
         int citiesOrder[] = new int[citiesCounter];
         for(int i = 0; i < citiesCounter; i++) visitedCities[i] = false;
         Random gen = new Random();
         for(int i = 0; i < citiesCounter; i++){
             int tmp = gen.nextInt(citiesCounter);
-            while(visitedCities[tmp]) {
-                tmp = gen.nextInt(citiesCounter);
-            }
+            while(visitedCities[tmp]) tmp = gen.nextInt(citiesCounter);
             visitedCities[tmp] = true;
             citiesOrder[i] = tmp;
         }
@@ -171,15 +166,15 @@ public class BeesAlgo {
         distanceCovered += distances[x[citiesCounter-1]][x[0]];
         return distanceCovered;
     }
-/*
-    public int random(double high, double low) {
-        Random generator = new Random();
-        if(integerize) return (generator.nextInt((int) high - (int) low) + (int) low);
-        double range = high-low+1;
-        double fraction = range*generator.nextDouble();
-        return(fraction+low);
-    }
-*/
+    /*
+        public int random(double high, double low) {
+            Random generator = new Random();
+            if(integerize) return (generator.nextInt((int) high - (int) low) + (int) low);
+            double range = high-low+1;
+            double fraction = range*generator.nextDouble();
+            return(fraction+low);
+        }
+    */
     public void sort(int[][] searchPoints[][]){
         Arrays.sort(searchPoints, new Comparator() {
 
@@ -212,11 +207,9 @@ public class BeesAlgo {
         double [] beeScoutResults = new double[scoutBees];
         for (int i = 0; i < scoutBees; i++) {
             int[] tmpX = this.fullRandom();
-            for(int j = 0; j < var; j++) {
-                searchPoints[i][j] = tmpX[j];
-            }
+            for(int j = 0; j < var; j++) searchPoints[i][j] = tmpX[j];
             double tmp = function(tmpX);
-            beeScoutResults[i] = tmp;   //zapis wyniku
+            beeScoutResults[i] = tmp;   //zapisanie wyniku
             //searchPoints[i][var] = tmp;
         }
         double minimum = Double.MAX_VALUE;
@@ -225,21 +218,8 @@ public class BeesAlgo {
         }
         System.out.println("Random result: " + minimum);
 
-        //wysylanie nastepnych N pszczol do K miejsc, czyli wybieranie K podzbiorów rozwiazania i losowe permutowanie ich na N sposobow
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        //wysylanie nastepnych N pszczol do K miejsc, czyli wybieranie K podzbiorów rozwiazania
+        // i losowe permutowanie ich na N sposobow
 
         /*
         for (int itr = 1; itr <= iteration; itr++) {
