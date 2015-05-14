@@ -257,11 +257,9 @@ public class BeesAlgo {
 
         int neigh = (int) (neighborhoodSize * citiesCounter);  //przeliczenie procentowego sąsiedztwa na sąsiedztwo w formie liczby miast
 
-
-
         for(int iter = 0; iter < iteration; iter++) { //liczba iteracji
 
-            sort2tables(beeScoutResults, searchPoints);
+            sort2tables(beeScoutResults, searchPoints);                 //sort po działaniu
             for(int btrplcs = 0; btrplcs < betterPlaces; btrplcs++){
                 for(int j = 0; j < beesSentToBetterPlaces; j++){
 
@@ -300,12 +298,6 @@ public class BeesAlgo {
                 }
             }
 
-
-
-
-
-
-
             for(int chsplcs = betterPlaces; chsplcs < chosenPlaces + betterPlaces; chsplcs++){
                 for(int j = 0; j < beesSentToOtherPlaces; j++){
 
@@ -343,113 +335,22 @@ public class BeesAlgo {
                     }
                 }
             }
-
-
-
-
-
-
         }
-
-        System.out.println();
-        System.out.println();
-        System.out.println();
-        System.out.println();
-        System.out.println();
 
         for(double print: beeScoutResults)
             System.out.println(print);
 
 
 
-
-/*
         double minimum = Double.MAX_VALUE;
         for (int i = 0; i < scoutBees; i++){
             if(minimum > beeScoutResults[i]) {
                 minimum = beeScoutResults[i];
             }
         }
-        System.out.println("Random result: " + minimum);
-*/
+        System.out.println("Best result: " + minimum);
 
-
-
-
-
-        //wysylanie nastepnych N pszczol do K miejsc, czyli wybieranie K podzbiorów rozwiazania
-        // i losowe permutowanie ich na N sposobow
-
-        /*
-        for (int itr = 1; itr <= iteration; itr++) {
-            sort(searchPoints);
-
-            for (int i = 0; i < betterPlaces; i++) {
-                int[] x = new int[var];
-                int[] x_best = new int[var];
-                for (int j = 0; j < var; j++) {
-                    x[j] = searchPoints[i][j];
-                    x_best[j] = x[j];
-                }
-                int f = searchPoints[i][var];
-                int f_best = f;
-
-                for (int indx = 0; indx < beesSentToBetterPlaces; indx++) {
-                    int[] x_elite = new int[var];
-                    for (int j = 0; j < var; j++)
-                        x_elite[j] = this.random(x[j] + neighborhoodSize, x[j] - neighborhoodSize);
-                    int f_elite = function(x_elite);
-                    if (f_elite > f_best) {
-                        for (int j = 0; j < var; j++) x_best[j] = x_elite[j];
-                        f_best = f_elite;
-                    }
-                }
-
-                for (int j = 0; j < var; j++) searchPoints[i][j] = x_best[j];
-                searchPoints[i][var] = f_best;
-            }
-
-            for (int i = betterPlaces; i < chosenPlaces; i++) {
-                int[] x = new int[var];
-                int[] x_best = new int[var];
-                for (int j = 0; j < var; j++) {
-                    x[j] = searchPoints[i][j];
-                    x_best[j] = x[j];
-                }
-
-                int f = searchPoints[i][var];
-                int f_best = f;
-
-                for (int indx = 0; indx < beesSentToOtherPlaces; indx++) {
-                    int[] x_elite = new int[var];
-                    for (int j = 0; j < var; j++) x_elite[j] = this.random(x[j] + neighborhoodSize, x[j] - neighborhoodSize);
-                    int f_elite = function(x_elite);
-                    if (f_elite > f_best) {
-                        for (int j = 0; j < var; j++) x_best[j] = x_elite[j];
-                        f_best = f_elite;
-                    }
-                }
-
-                for (int j = 0; j < var; j++) searchPoints[i][j] = x_best[j];
-                searchPoints[i][var] = f_best;
-            }
-
-            for (int i = chosenPlaces; i < scoutBees; i++) {
-                int[] tmpX = new int[var];
-                for (int j = 0; j < var; j++) {
-                    searchPoints[i][j] = this.random(upperLimit, lowerLimit);
-                    tmpX[j] = searchPoints[i][j];
-                }
-                searchPoints[i][var] = function(tmpX);
-            }
-        }
-
-        sort(searchPoints);
-
-        for (int j = 0; j < var; j++) optimalPoint[j] = searchPoints[0][j];
-        optimalPoint[var] = -searchPoints[0][var];
-        */
-    }
+   }
 
     public double optimalValue(){
         return(optimalPoint[var]);
