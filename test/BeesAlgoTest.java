@@ -6,7 +6,7 @@ import java.io.FileNotFoundException;
 
 public class BeesAlgoTest {
     public static void main(String[] args) throws FileNotFoundException {
-        BeesAlgo beesAlgo = new BeesAlgo(false, 0.2, 100000, 10000, 4, 4, 200, 8);
+        BeesAlgo beesAlgo = new BeesAlgo(0.2, 100, 10, 4, 4, 200, 8, "C:\\Users\\Janusz\\IdeaProjects\\BeesTSP\\TSPLIB\\berlin52.tsp");
 
         beesAlgo.startAlgo();
         beesAlgo.setDistances();
@@ -14,16 +14,5 @@ public class BeesAlgoTest {
         beesAlgo.init();
         beesAlgo.fullRandom();
         beesAlgo.run();
-
-        /*
-        double[] optimalPoint=beesAlgo.optimalPoint();
-        System.out.print("Point (");
-        for (int j = 0; j < beesAlgo.var; j++) {
-            System.out.print(optimalPoint[j]);
-            if(j!=beesAlgo.var-1) System.out.print(",");
-        }
-        System.out.println(")");
-        System.out.println("Value " + beesAlgo.optimalValue());
-        */
     }
 }

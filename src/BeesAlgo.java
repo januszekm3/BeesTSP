@@ -3,36 +3,29 @@
  */
 
 import java.io.*;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.Random;
 
 public class BeesAlgo {
 
-    public int beesSentToBetterPlaces;      // liczba pszczol wysylanych do lepszych miejsc
-    public int beesSentToOtherPlaces;       // liczba pszczol wyslanych do pozostalych wybranych miejsc
-    public int betterPlaces;                // liczba lepszych miejsc
-    public int chosenPlaces;                // liczba wybranych miejsc
-    public int iteration;                   // maksymalna liczba iteracji
-    public int scoutBees;                   // liczba pszczol zwiadowcow
-    public int var;
-    public int citiesCounter;
+    private int beesSentToBetterPlaces;      // liczba pszczol wysylanych do lepszych miejsc
+    private int beesSentToOtherPlaces;       // liczba pszczol wyslanych do pozostalych wybranych miejsc
+    private int betterPlaces;                // liczba lepszych miejsc
+    private int chosenPlaces;                // liczba wybranych miejsc
+    private int iteration;                   // maksymalna liczba iteracji
+    private int scoutBees;                   // liczba pszczol zwiadowcow
+    private int var;
+    private int citiesCounter;
 
     private int cities [][];
 
-    public double neighborhoodSize;         // rozmiar sasiedztwa(%) [0,1]
-
-    public double optimalPoint[];
+    private double neighborhoodSize;         // rozmiar sasiedztwa(%) [0,1]
+    private double optimalPoint[];
     private double distances [][];
 
-    public boolean integerize = false;
+    private String pathToFile;
 
-    public BeesAlgo(){
-    }
-
-    public BeesAlgo(boolean integerize, double neighborhoodSize, int beesSentToBetterPlaces, int beesSentToOtherPlaces,
-                    int betterPlaces, int chosenPlaces, int iteration, int scoutBees){
-        this.integerize = integerize;
+    public BeesAlgo(double neighborhoodSize, int beesSentToBetterPlaces, int beesSentToOtherPlaces,
+                    int betterPlaces, int chosenPlaces, int iteration, int scoutBees, String pathToFile){
         this.neighborhoodSize = neighborhoodSize;
         this.beesSentToBetterPlaces = beesSentToBetterPlaces;
         this.beesSentToOtherPlaces = beesSentToOtherPlaces;
@@ -40,7 +33,7 @@ public class BeesAlgo {
         this.chosenPlaces = chosenPlaces;
         this.iteration = iteration;
         this.scoutBees = scoutBees;
-        init();
+        this.pathToFile = pathToFile;
     }
 
     public void startAlgo() throws FileNotFoundException {
@@ -49,8 +42,8 @@ public class BeesAlgo {
         LineNumberReader lnr = null;
 
         try {
-            fis = new FileInputStream("C:\\Users\\Vanquis\\IdeaProjects\\BeesTSP\\TSPLIB\\berlin52.tsp");
-            lnr = new LineNumberReader(new FileReader("C:\\Users\\Vanquis\\IdeaProjects\\BeesTSP\\TSPLIB\\berlin52.tsp"));
+            fis = new FileInputStream(pathToFile);
+            lnr = new LineNumberReader(new FileReader(pathToFile));
             lnr.skip(Long.MAX_VALUE);
             reader = new BufferedReader(new InputStreamReader(fis));
             citiesCounter = lnr.getLineNumber()+1;
@@ -80,10 +73,9 @@ public class BeesAlgo {
 
     public void setDistances () {
         for (int i = 0; i < citiesCounter; i++)
-            for (int j = 0; j < citiesCounter; j++) {
+            for (int j = 0; j < citiesCounter; j++)
                 distances[i][j] = distances[j][i] = Math.sqrt((cities[0][i] - cities[0][j]) * (cities[0][i] - cities[0][j])
                         + (cities[1][i] - cities[1][j]) * (cities[1][i] - cities[1][j]));
-            }
     }
 
     public void generateFirstSolution () {
@@ -107,16 +99,14 @@ public class BeesAlgo {
                 flag = false;   //zeby sie nie zapetlic
 
                 //dla danego miasta przechodze po wszystkich sasiadach
-                for (int k = 0; k < citiesCounter; k++) {
-
-                    //kontrola - czy nie porownujemy miasta z samym soba; czy dystans lepszy od lokalnego;
-                    //czy nie bylismy juz w tym miescie
+                //kontrola - czy nie porownujemy miasta z samym soba; czy dystans lepszy od lokalnego;
+                //czy nie bylismy juz w tym miescie
+                for (int k = 0; k < citiesCounter; k++)
                     if ((distances[index][k] > 0) && (distances[index][k] < localBestSolution) && (!visitedCities[k])) {
                         localBestSolution = distances[index][k];
                         index = k;
                         break;
                     }
-                }
 
                 visitedCities[index] = true;
                 currentBestSolution += localBestSolution;
@@ -141,8 +131,7 @@ public class BeesAlgo {
         for (int j = 0; j < var + 1; j++) optimalPoint[j] = 1;
     }
 
-
-    public int[] fullRandom(){      //pszczoly zwiadowcy
+    public int[] fullRandom(){                                           //pszczoly zwiadowcy
         boolean visitedCities[] = new boolean[citiesCounter];
         int citiesOrder[] = new int[citiesCounter];
         for(int i = 0; i < citiesCounter; i++) visitedCities[i] = false;
@@ -156,67 +145,111 @@ public class BeesAlgo {
         return citiesOrder;
     }
 
-    public double function(int[] x) {
+    public void run() {
+        int[][] searchPoints = new int[scoutBees][var + 1];
+
+        //tablica wynikow funkcji celu z randomowych pszczol zwiadowcow
+        double [] beeScoutResults = new double[scoutBees];
+        for (int i = 0; i < scoutBees; i++) {
+            int[] tmpX = this.fullRandom();
+            System.arraycopy(tmpX, 0, searchPoints[i], 0, var);
+            double tmp = targetFunction(tmpX);
+            beeScoutResults[i] = tmp;   //zapisanie wyniku
+        }
+
+        sort2tables(beeScoutResults, searchPoints);
+        for(double print: beeScoutResults)
+            System.out.println(print);
+
+        //przeliczenie procentowego sasiedztwa na sasiedztwo w formie liczby miast
+        int neigh = (int) (neighborhoodSize * citiesCounter);
+
+        for(int iter = 0; iter < iteration; iter++) {                       //liczba iteracji
+            sort2tables(beeScoutResults, searchPoints);                     //sort po dzialaniu
+            for(int btrplcs = 0; btrplcs < betterPlaces; btrplcs++)
+                for (int j = 0; j < beesSentToBetterPlaces; j++) {
+                    int[] operativeVector = new int[citiesCounter];         //vector do operowania swapami
+                    int[] beforeSwapVector = new int[citiesCounter];        //vector do zapamietania stanu przed swapem
+                    System.arraycopy(searchPoints[btrplcs], 0, operativeVector, 0, citiesCounter);
+                    System.arraycopy(operativeVector, 0, beforeSwapVector, 0, citiesCounter);
+                    int randIndex = new Random().nextInt(citiesCounter - 2);  //wylosowane miasto, centrum sasiedztwa
+
+                    //losowanie odleglosci pomiedzy  miastami do swapa (mniejszy niz rozmiar sasiedztwa)
+                    int neighJump = (new Random().nextInt(2 * neigh)) - neigh;
+                    int swapIndex = randIndex + neighJump;                  //obliczenie odleglosci pomiedzy miastami do swapa
+
+                    //zabezpieczenie przed wykroczeniem poza indeks tablicy
+                    if (swapIndex < 0)
+                        swapIndex = 0;
+                    else if (swapIndex > citiesCounter - 1)
+                        swapIndex = citiesCounter - 1;
+                    swapIntTable(randIndex, swapIndex, operativeVector);    //swap pomiedzy miastami
+
+                    double newValue = targetFunction(operativeVector);      //nowa funkcja celu
+                    double oldValue = targetFunction(beforeSwapVector);     //stara funckcja celu
+
+                    //sprawdzanie czy sie poprawilo
+                    if (newValue < oldValue)
+                        for (int i = 0; i < citiesCounter; i++) {           //jak tak to zapisujemy nowy wynik
+                            searchPoints[btrplcs][i] = operativeVector[i];
+                            beeScoutResults[btrplcs] = newValue;            //zapis do beeScoutResults nowego wyniku
+                        }
+                }
+
+            for(int chsplcs = betterPlaces; chsplcs < chosenPlaces + betterPlaces; chsplcs++)
+                for (int j = 0; j < beesSentToOtherPlaces; j++) {
+                    int[] operativeVector = new int[citiesCounter];         //vector do operowania swapami
+                    int[] beforeSwapVector = new int[citiesCounter];        //vector do zapamietania stanu przed swapem
+                    System.arraycopy(searchPoints[chsplcs], 0, operativeVector, 0, citiesCounter);
+                    System.arraycopy(operativeVector, 0, beforeSwapVector, 0, citiesCounter);
+                    int randIndex = new Random().nextInt(citiesCounter - 2);  //wylosowane miasto, centrum sasiedztwa
+
+                    //losowanie odleglosci pomiedzy  miastami do swapa (mniejszy niz rozmiar sasiedztwa)
+                    int neighJump = (new Random().nextInt(2 * neigh)) - neigh;
+                    int swapIndex = randIndex + neighJump;                  //obliczenie odleglosci pomiedzy miastami do swapa
+
+                    //zabezpieczenie przed wykroczeniem poza indeks tablicy
+                    if (swapIndex < 0)
+                        swapIndex = 0;
+                    else if (swapIndex > citiesCounter - 1)
+                        swapIndex = citiesCounter - 1;
+                    swapIntTable(randIndex, swapIndex, operativeVector);    //swap pomiedzy miastami
+
+                    double newValue = targetFunction(operativeVector);      //nowa funkcja celu
+                    double oldValue = targetFunction(beforeSwapVector);     //stara funckcja celu
+
+                    //sprawdzanie czy sie poprawilo
+                    if (newValue < oldValue)
+                        for (int i = 0; i < citiesCounter; i++) {           //jak tak to zapisujemy nowy wynik
+                            searchPoints[chsplcs][i] = operativeVector[i];
+                            beeScoutResults[chsplcs] = newValue;            //zapis do beeScoutResults nowego wyniku
+                        }
+                }
+        }
+
+        for (double print: beeScoutResults) System.out.println(print);
+
+        double minimum = Double.MAX_VALUE;
+        for (int i = 0; i < scoutBees; i++)
+            if (minimum > beeScoutResults[i]) minimum = beeScoutResults[i];
+        System.out.println("Best result: " + minimum);
+    }
+
+    public double targetFunction(int[] x) {
         double distanceCovered = 0;
         for(int i = 0; i < citiesCounter - 1 ; i++) distanceCovered += distances[x[i]][x[i+1]];
         distanceCovered += distances[x[citiesCounter-1]][x[0]];
         return distanceCovered;
     }
-    /*
-        public int random(double high, double low) {
-            Random generator = new Random();
-            if(integerize) return (generator.nextInt((int) high - (int) low) + (int) low);
-            double range = high-low+1;
-            double fraction = range*generator.nextDouble();
-            return(fraction+low);
-        }
-    */
-    public void sort(int[][] searchPoints[][]){
-        Arrays.sort(searchPoints, new Comparator() {
 
-            public int compare(double[] o1, double[] o2) {
-                if (o1[var] < o2[var]) {
-                    return 1; // -1 for descending order
-                } else if (o1[var] > o2[var]) {
-                    return -1; // 1 for descending order
-                } else {
-                    return 0;
+    //sort obu tablic (wartosci funkcji celu i kolejnosci miast)
+    public void sort2tables(double[] sortingData, int[][]additionalTable){
+        for(int i = 0; i < scoutBees-1; i++)
+            for (int j = 0; j < scoutBees - 1; j++)
+                if (sortingData[j] > sortingData[j + 1]) {          //warunek == wartosc funkcji celu
+                    swapDoubleTable(j, j + 1, sortingData);                    //swap jednowymiarowej z wartosciami funkcji celu
+                    complicatedSwap(j, j + 1, additionalTable);     //swap dwuwymiarowej z kolejnoscia miast
                 }
-            }
-
-            public int compare(Object o1, Object o2) {
-                double[] O1 = (double[]) o1;
-                double[] O2 = (double[]) o2;
-                if (O1[var] < O2[var]) {
-                    return 1; // -1 for descending order
-                } else if (O1[var] > O2[var]) {
-                    return -1; // 1 for descending order
-                } else {
-                    return 0;
-                }
-            }
-        });
-    }
-
-    public void sort2tables(double[] sortingData, int[][]additionalTable){  //sort obu tablic (wartosci funkcji celu i kolejnosci miast)
-        for(int i = 0; i < scoutBees-1; i++){
-            for(int j = 0; j < scoutBees-1; j++){
-                if(sortingData[j] > sortingData[j+1]){  //warunek == wartosc funkcji celu
-                    swap(j, j+1, sortingData);          //swap jednowymiarowej z wartosciami funkcji celu
-                    complicatedSwap(j, j+1, additionalTable); //swap dwuwymiarowej z kolejnoscia miast
-                }
-            }
-        }
-
-
-
-    }
-
-    public void swap(int a, int b, double[] tab){
-        double tmp;
-        tmp = tab[a];
-        tab[a] = tab[b];
-        tab[b] = tmp;
     }
 
     public void swapIntTable(int a, int b, int[] tab){
@@ -226,131 +259,27 @@ public class BeesAlgo {
         tab[b] = tmp;
     }
 
-    public void complicatedSwap(int a, int b, int[][]additionalTable){
-        int[]tmp = new int[citiesCounter];
-        for (int i = 0; i < citiesCounter; i++){
-            tmp[i] = additionalTable[a][i];
-        }
-        for (int i = 0; i < citiesCounter; i++){
-            additionalTable[a][i] = additionalTable[b][i];
-        }
-        for (int i = 0; i < citiesCounter; i++){
-            additionalTable[b][i] = tmp[i];
-        }
+    public void swapDoubleTable(int a, int b, double[] tab){
+        double tmp;
+        tmp = tab[a];
+        tab[a] = tab[b];
+        tab[b] = tmp;
     }
 
+    public void complicatedSwap(int a, int b, int[][]additionalTable){
+        int[]tmp = new int[citiesCounter];
+        System.arraycopy(additionalTable[a], 0, tmp, 0, citiesCounter);
+        System.arraycopy(additionalTable[b], 0, additionalTable[b], 0, citiesCounter);
+        System.arraycopy(tmp, 0, additionalTable[b], 0, citiesCounter);
+    }
 
-    public void run() {
-        int[][] searchPoints = new int[scoutBees][var + 1];
-        double [] beeScoutResults = new double[scoutBees];//tablica wynikow funkcji celu z randomowych pszczol zwiadowcow
-        for (int i = 0; i < scoutBees; i++) {
-            int[] tmpX = this.fullRandom();
-            for(int j = 0; j < var; j++) searchPoints[i][j] = tmpX[j];
-            double tmp = function(tmpX);
-            beeScoutResults[i] = tmp;   //zapisanie wyniku
-            //searchPoints[i][var] = tmp;
-        }
-
-        sort2tables(beeScoutResults, searchPoints);
-        for(double print: beeScoutResults)
-            System.out.println(print);
-
-        int neigh = (int) (neighborhoodSize * citiesCounter);  //przeliczenie procentowego sąsiedztwa na sąsiedztwo w formie liczby miast
-
-        for(int iter = 0; iter < iteration; iter++) { //liczba iteracji
-
-            sort2tables(beeScoutResults, searchPoints);                 //sort po działaniu
-            for(int btrplcs = 0; btrplcs < betterPlaces; btrplcs++){
-                for(int j = 0; j < beesSentToBetterPlaces; j++){
-
-                    int[] operativeVector = new int[citiesCounter];   //vector do operowania swapami
-                    int[] beforeSwapVector = new int[citiesCounter];  //vector do zapamietania stanu przed swapem
-                    for(int i = 0; i < citiesCounter; i++){
-                        operativeVector[i] = searchPoints[btrplcs][i];
-                    }
-
-                    for (int ind = 0; ind < citiesCounter; ind++) {
-                        beforeSwapVector[ind] = operativeVector[ind];      //zapamietanie vectora przed swapem
-                    }
-
-                    int randIndex = new Random().nextInt(citiesCounter-2);   //wylosowane miasto, centrum sasiedztwa
-                    int neighJump = (new Random().nextInt(2*neigh)) - neigh;    //losowanie odległości pomiedzy  miastami do swapa (mniejszy niż rozmiar sasiedztwa)
-                    int swapIndex = randIndex + neighJump;          //obliczenie odległości pomiedzy miastami do swapa
-
-
-                    if(swapIndex < 0){              //zabezpieczenie przed wykroczeniem poza indeks tablicy
-                        swapIndex = 0;
-                    }else if(swapIndex > citiesCounter-1){
-                        swapIndex = citiesCounter-1;
-                    }
-                    swapIntTable(randIndex, swapIndex, operativeVector);        //swap pomiedzy miastami
-
-                    double newValue = function(operativeVector);                //nowa funkcja celu
-                    double oldValue = function(beforeSwapVector);               //stara funckcja celu
-
-                    if(newValue < oldValue){
-                                       //sprawdzanie czy sie poprawiło
-                        for(int i = 0; i < citiesCounter; i++){                 //jak tak to zapisujemy nowy wynik
-                            searchPoints[btrplcs][i] = operativeVector[i];
-                            beeScoutResults[btrplcs] = newValue;                //zapis do beeScoutResults nowego wyniku
-                        }
-                    }
-                }
-            }
-
-            for(int chsplcs = betterPlaces; chsplcs < chosenPlaces + betterPlaces; chsplcs++){
-                for(int j = 0; j < beesSentToOtherPlaces; j++){
-
-                    int[] operativeVector = new int[citiesCounter];   //vector do operowania swapami
-                    int[] beforeSwapVector = new int[citiesCounter];  //vector do zapamietania stanu przed swapem
-                    for(int i = 0; i < citiesCounter; i++){
-                        operativeVector[i] = searchPoints[chsplcs][i];
-                    }
-
-                    for (int ind = 0; ind < citiesCounter; ind++) {
-                        beforeSwapVector[ind] = operativeVector[ind];      //zapamietanie vectora przed swapem
-                    }
-
-                    int randIndex = new Random().nextInt(citiesCounter-2);   //wylosowane miasto, centrum sasiedztwa
-                    int neighJump = (new Random().nextInt(2*neigh)) - neigh;    //losowanie odległości pomiedzy  miastami do swapa (mniejszy niż rozmiar sasiedztwa)
-                    int swapIndex = randIndex + neighJump;          //obliczenie odległości pomiedzy miastami do swapa
-
-
-                    if(swapIndex < 0){              //zabezpieczenie przed wykroczeniem poza indeks tablicy
-                        swapIndex = 0;
-                    }else if(swapIndex > citiesCounter-1){
-                        swapIndex = citiesCounter-1;
-                    }
-                    swapIntTable(randIndex, swapIndex, operativeVector);        //swap pomiedzy miastami
-
-                    double newValue = function(operativeVector);                //nowa funkcja celu
-                    double oldValue = function(beforeSwapVector);               //stara funckcja celu
-
-                    if(newValue < oldValue){
-                        //sprawdzanie czy sie poprawiło
-                        for(int i = 0; i < citiesCounter; i++){                 //jak tak to zapisujemy nowy wynik
-                            searchPoints[chsplcs][i] = operativeVector[i];
-                            beeScoutResults[chsplcs] = newValue;                //zapis do beeScoutResults nowego wyniku
-                        }
-                    }
-                }
-            }
-        }
-
-        for(double print: beeScoutResults)
-            System.out.println(print);
-
-
-
-        double minimum = Double.MAX_VALUE;
-        for (int i = 0; i < scoutBees; i++){
-            if(minimum > beeScoutResults[i]) {
-                minimum = beeScoutResults[i];
-            }
-        }
-        System.out.println("Best result: " + minimum);
-
-   }
+    /*public int random(double high, double low) {
+        Random generator = new Random();
+        if(integerize) return (generator.nextInt((int) high - (int) low) + (int) low);
+        double range = high-low+1;
+        double fraction = range*generator.nextDouble();
+        return(fraction+low);
+    }
 
     public double optimalValue(){
         return(optimalPoint[var]);
@@ -358,7 +287,7 @@ public class BeesAlgo {
 
     public double[] optimalPoint(){
         double[] result = new double[var];
-        for (int j = 0; j < var; j++) result[j] = optimalPoint[j];
+        System.arraycopy(optimalPoint, 0, result, 0, var);
         return(result);
-    }
+    }*/
 }
