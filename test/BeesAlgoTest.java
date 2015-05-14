@@ -6,7 +6,7 @@ import java.io.FileNotFoundException;
 
 public class BeesAlgoTest {
     public static void main(String[] args) throws FileNotFoundException {
-        BeesAlgo beesAlgo = new BeesAlgo(false, 1, 4, 2, 4, 5, 200, -10, 2000000, 10);
+        BeesAlgo beesAlgo = new BeesAlgo(false, 1, 4, 2, 4, 5, 200, -10, 200, 10);
 
         beesAlgo.startAlgo();
         beesAlgo.setDistances();

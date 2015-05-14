@@ -53,8 +53,8 @@ public class BeesAlgo {
         LineNumberReader lnr = null;
 
         try {
-            fis = new FileInputStream("C:\\Users\\Janusz\\IdeaProjects\\BeesTSP\\TSPLIB\\ex.tsp");
-            lnr = new LineNumberReader(new FileReader("C:\\Users\\Janusz\\IdeaProjects\\BeesTSP\\TSPLIB\\ex.tsp"));
+            fis = new FileInputStream("C:\\Users\\Vanquis\\IdeaProjects\\BeesTSP\\TSPLIB\\berlin52.tsp");
+            lnr = new LineNumberReader(new FileReader("C:\\Users\\Vanquis\\IdeaProjects\\BeesTSP\\TSPLIB\\berlin52.tsp"));
             lnr.skip(Long.MAX_VALUE);
             reader = new BufferedReader(new InputStreamReader(fis));
             citiesCounter = lnr.getLineNumber()+1;
@@ -202,9 +202,45 @@ public class BeesAlgo {
         });
     }
 
+    public void sort2tables(double[] sortingData, int[][]additionalTable){  //sort obu tablic (wartosci funkcji celu i kolejnosci miast)
+        for(int i = 0; i < scoutBees-1; i++){
+            for(int j = 0; j < scoutBees-1; j++){
+                if(sortingData[j] > sortingData[j+1]){  //warunek == wartosc funkcji celu
+                    swap(j, j+1, sortingData);          //swap jednowymiarowej z wartosciami funkcji celu
+                    complicatedSwap(j, j+1, additionalTable); //swap dwuwymiarowej z kolejnoscia miast
+                }
+            }
+        }
+
+
+
+    }
+
+    public void swap(int a, int b, double[] tab){
+        double tmp;
+        tmp = tab[a];
+        tab[a] = tab[b];
+        tab[b] = tmp;
+    }
+
+    public void complicatedSwap(int a, int b, int[][]additionalTable){
+        int[]tmp = new int[citiesCounter];
+        for (int i = 0; i < citiesCounter; i++){
+            tmp[i] = additionalTable[a][i];
+        }
+        for (int i = 0; i < citiesCounter; i++){
+            additionalTable[a][i] = additionalTable[b][i];
+        }
+        for (int i = 0; i < citiesCounter; i++){
+            additionalTable[b][i] = tmp[i];
+        }
+    }
+
+
+
     public void run() {
         int[][] searchPoints = new int[scoutBees][var + 1];
-        double [] beeScoutResults = new double[scoutBees];
+        double [] beeScoutResults = new double[scoutBees];//tablica wynikow funkcji celu z randomowych pszczol zwiadowcow
         for (int i = 0; i < scoutBees; i++) {
             int[] tmpX = this.fullRandom();
             for(int j = 0; j < var; j++) searchPoints[i][j] = tmpX[j];
@@ -212,11 +248,34 @@ public class BeesAlgo {
             beeScoutResults[i] = tmp;   //zapisanie wyniku
             //searchPoints[i][var] = tmp;
         }
+
+        sort2tables(beeScoutResults, searchPoints);
+
+        for (int i = 0; i < scoutBees; i++){
+            System.out.println(beeScoutResults[i]);
+        }
+
+
+
+
+
+
+
+
+
+/*
         double minimum = Double.MAX_VALUE;
         for (int i = 0; i < scoutBees; i++){
-            if(minimum > beeScoutResults[i]) minimum = beeScoutResults[i];
+            if(minimum > beeScoutResults[i]) {
+                minimum = beeScoutResults[i];
+            }
         }
         System.out.println("Random result: " + minimum);
+*/
+
+
+
+
 
         //wysylanie nastepnych N pszczol do K miejsc, czyli wybieranie K podzbiorów rozwiazania
         // i losowe permutowanie ich na N sposobow
