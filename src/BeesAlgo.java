@@ -122,7 +122,7 @@ public class BeesAlgo {
             //najlepsze rozwiazanie z dowolnego miasta
             if (currentBestSolution < bestSolution) bestSolution = currentBestSolution;
         }
-        System.out.println("Nearest neighbor heuristics best result: " + bestSolution);
+        System.out.println("Nearest neighbor heuristics best result: " + bestSolution + "\n");
     }
 
     public void init(){
@@ -158,8 +158,9 @@ public class BeesAlgo {
         }
 
         sort2tables(beeScoutResults, searchPoints);
-        for(double print: beeScoutResults)
-            System.out.println(print);
+
+        System.out.println("Random, sorted results:");
+        for(double print: beeScoutResults) System.out.println(print);
 
         //przeliczenie procentowego sasiedztwa na sasiedztwo w formie liczby miast
         int neigh = (int) (neighborhoodSize * citiesCounter);
@@ -227,12 +228,15 @@ public class BeesAlgo {
                 }
         }
 
+        System.out.println("\nFinal, sorted results:");
         for (double print: beeScoutResults) System.out.println(print);
 
-        double minimum = Double.MAX_VALUE;
-        for (int i = 0; i < scoutBees; i++)
-            if (minimum > beeScoutResults[i]) minimum = beeScoutResults[i];
-        System.out.println("Best result: " + minimum);
+        System.out.println("\nWorst result: " + beeScoutResults[scoutBees-1]);
+        double average = 0;
+        for (int i = 0; i < scoutBees; i++) average += beeScoutResults[i];
+        average /= scoutBees;
+        System.out.println("Average result: " + average);
+        System.out.println("Best result: " + beeScoutResults[0]);
     }
 
     public double targetFunction(int[] x) {
