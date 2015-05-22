@@ -16,6 +16,8 @@ public class BeesAlgo {
     private int var;
     private int citiesCounter;
 
+    private double worstResult, averageResult, bestResult;
+
     private int cities [][];
 
     private double neighborhoodSize;         // rozmiar sasiedztwa(%) [0,1]
@@ -78,7 +80,7 @@ public class BeesAlgo {
                         + (cities[1][i] - cities[1][j]) * (cities[1][i] - cities[1][j]));
     }
 
-    public void generateFirstSolution () {
+    public double generateFirstSolution () {
         double bestSolution, currentBestSolution, localBestSolution;
         int index;
         boolean visitedCities[] = new boolean[citiesCounter];
@@ -123,6 +125,7 @@ public class BeesAlgo {
             if (currentBestSolution < bestSolution) bestSolution = currentBestSolution;
         }
         System.out.println("Nearest neighbor heuristics best result: " + bestSolution + "\n");
+        return round(bestSolution, 2);
     }
 
     public void init(){
@@ -231,12 +234,14 @@ public class BeesAlgo {
         System.out.println("\nFinal, sorted results:");
         for (double print: beeScoutResults) System.out.println(print);
 
-        System.out.println("\nWorst result: " + beeScoutResults[scoutBees-1]);
-        double average = 0;
-        for (int i = 0; i < scoutBees; i++) average += beeScoutResults[i];
-        average /= scoutBees;
-        System.out.println("Average result: " + average);
-        System.out.println("Best result: " + beeScoutResults[0]);
+        worstResult = beeScoutResults[scoutBees-1];
+        System.out.println("\nWorst result: " + worstResult);
+        averageResult = 0;
+        for (int i = 0; i < scoutBees; i++) averageResult += beeScoutResults[i];
+        averageResult /= scoutBees;
+        System.out.println("Average result: " + averageResult);
+        bestResult = beeScoutResults[0];
+        System.out.println("Best result: " + bestResult);
     }
 
     public double targetFunction(int[] x) {
@@ -275,6 +280,26 @@ public class BeesAlgo {
         System.arraycopy(additionalTable[a], 0, tmp, 0, citiesCounter);
         System.arraycopy(additionalTable[b], 0, additionalTable[b], 0, citiesCounter);
         System.arraycopy(tmp, 0, additionalTable[b], 0, citiesCounter);
+    }
+
+    public double getWorstResult() {
+        return round(worstResult, 2);
+    }
+
+    public double getAverageResult() {
+        return round(averageResult, 2);
+    }
+
+    public double getBestResult() {
+        return round(bestResult, 2);
+    }
+
+    public static double round(double value, int places) {
+        if (places < 0) throw new IllegalArgumentException();
+        long factor = (long) Math.pow(10, places);
+        value = value * factor;
+        long tmp = Math.round(value);
+        return (double) tmp / factor;
     }
 
     /*public int random(double high, double low) {

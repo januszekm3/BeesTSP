@@ -2,12 +2,15 @@
  * Created by Janusz on 21-04-2015.
  */
 
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class BeesAlgoTest {
-    public static void main(String[] args) throws FileNotFoundException {
+    public static void main(String[] args) throws IOException {
+        BeesGUI.run();
+
+        /*  OLD VERSION
         String pathToDir = "C:\\\\Users\\\\Janusz\\\\IdeaProjects\\\\BeesTSP\\\\TSPLIB\\\\";
 
         List<String> files = new ArrayList<>();
@@ -49,6 +52,6 @@ public class BeesAlgoTest {
             beesAlgo.run();
             long end = System.currentTimeMillis();
             System.out.println("Time: " + (double) (end - start) / 1000);
-        }
+        }*/
     }
 }
