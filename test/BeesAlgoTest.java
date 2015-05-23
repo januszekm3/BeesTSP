@@ -10,9 +10,8 @@ public class BeesAlgoTest {
     public static void main(String[] args) throws IOException {
         BeesGUI.run();
 
-        /*  OLD VERSION
+        /*
         String pathToDir = "C:\\\\Users\\\\Janusz\\\\IdeaProjects\\\\BeesTSP\\\\TSPLIB\\\\";
-
         List<String> files = new ArrayList<>();
         files.add("a280");
         files.add("att532");
@@ -39,19 +38,19 @@ public class BeesAlgoTest {
                     1000,       //beesSentToOtherPlaces
                     5,          //betterPlaces
                     5,          //chosenPlaces
-                    3000,       //iteration
-                    10,          //scoutBees
+                    3000,       //iterations
+                    10,         //scoutBees
                     pathToDir + file + ".tsp");
 
             System.out.println("\nInstance: " + file);
             beesAlgo.startAlgo();
             beesAlgo.setDistances();
             beesAlgo.generateFirstSolution();
-            beesAlgo.init();
             beesAlgo.fullRandom();
             beesAlgo.run();
             long end = System.currentTimeMillis();
             System.out.println("Time: " + (double) (end - start) / 1000);
-        }*/
+        }
+        */
     }
 }

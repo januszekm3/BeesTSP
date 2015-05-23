@@ -20,7 +20,7 @@ public class BeesGUI {
         final int[] beesSentToOtherPlaces = new int[1];
         final int[] betterPlaces = new int[1];
         final int[] chosenPlaces = new int[1];
-        final int[] iteration = new int[1];
+        final int[] iterations = new int[1];
         final int[] scoutBees = new int[1];
         final double[] averageResult = new double[1];
         final double[] bestResult = new double[1];
@@ -95,8 +95,8 @@ public class BeesGUI {
         panel1.add(selectedPath);
         panel2.add(chooseFile);
         panel2.add(path);
-        panel1.add(Box.createVerticalStrut(50));                // space between previous and next component in 1st panel
-        panel2.add(Box.createVerticalStrut(50));                // space between previous and next component in 2nd panel
+        panel1.add(Box.createVerticalStrut(50));        // space between previous and next component in 1st panel
+        panel2.add(Box.createVerticalStrut(50));        // space between previous and next component in 2nd panel
         panel1.add(label1);
         panel2.add(text1);
         panel1.add(label2);
@@ -156,10 +156,10 @@ public class BeesGUI {
                 beesSentToOtherPlaces[0] = Integer.parseInt(text3.getText());
                 betterPlaces[0] = Integer.parseInt(text4.getText());
                 chosenPlaces[0] = Integer.parseInt(text5.getText());
-                iteration[0] = Integer.parseInt(text6.getText());
+                iterations[0] = Integer.parseInt(text6.getText());
                 scoutBees[0] = Integer.parseInt(text7.getText());
                 BeesAlgo beesAlgo = new BeesAlgo(neighborhoodSize[0], beesSentToBetterPlaces[0], beesSentToOtherPlaces[0],
-                        betterPlaces[0], chosenPlaces[0], iteration[0], scoutBees[0], s[0]);
+                        betterPlaces[0], chosenPlaces[0], iterations[0], scoutBees[0], s[0]);
                 long start = System.currentTimeMillis();
                 try {
                     beesAlgo.startAlgo();                   // starting algorithm
@@ -168,7 +168,6 @@ public class BeesGUI {
                 }
                 beesAlgo.setDistances();
                 heuristics[0] = beesAlgo.generateFirstSolution();
-                beesAlgo.init();
                 beesAlgo.fullRandom();
                 beesAlgo.run();
                 averageResult[0] = beesAlgo.getAverageResult();

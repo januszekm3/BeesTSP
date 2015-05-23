@@ -11,7 +11,7 @@ public class BeesAlgo {
     private int beesSentToOtherPlaces;       // liczba pszczol wyslanych do pozostalych wybranych miejsc
     private int betterPlaces;                // liczba lepszych miejsc
     private int chosenPlaces;                // liczba wybranych miejsc
-    private int iteration;                   // maksymalna liczba iteracji
+    private int iterations;                   // maksymalna liczba iteracji
     private int scoutBees;                   // liczba pszczol zwiadowcow
     private int var;
     private int citiesCounter;
@@ -21,19 +21,18 @@ public class BeesAlgo {
     private int cities [][];
 
     private double neighborhoodSize;         // rozmiar sasiedztwa(%) [0,1]
-    private double optimalPoint[];
     private double distances [][];
 
     private String pathToFile;
 
     public BeesAlgo(double neighborhoodSize, int beesSentToBetterPlaces, int beesSentToOtherPlaces,
-                    int betterPlaces, int chosenPlaces, int iteration, int scoutBees, String pathToFile){
+                    int betterPlaces, int chosenPlaces, int iterations, int scoutBees, String pathToFile){
         this.neighborhoodSize = neighborhoodSize;
         this.beesSentToBetterPlaces = beesSentToBetterPlaces;
         this.beesSentToOtherPlaces = beesSentToOtherPlaces;
         this.betterPlaces = betterPlaces;
         this.chosenPlaces = chosenPlaces;
-        this.iteration = iteration;
+        this.iterations = iterations;
         this.scoutBees = scoutBees;
         this.pathToFile = pathToFile;
     }
@@ -128,13 +127,8 @@ public class BeesAlgo {
         return round(bestSolution, 2);
     }
 
-    public void init(){
-        var = citiesCounter;
-        this.optimalPoint = new double[var + 1];
-        for (int j = 0; j < var + 1; j++) optimalPoint[j] = 1;
-    }
-
     public int[] fullRandom(){                                           //pszczoly zwiadowcy
+        var = citiesCounter;
         boolean visitedCities[] = new boolean[citiesCounter];
         int citiesOrder[] = new int[citiesCounter];
         for(int i = 0; i < citiesCounter; i++) visitedCities[i] = false;
@@ -168,7 +162,7 @@ public class BeesAlgo {
         //przeliczenie procentowego sasiedztwa na sasiedztwo w formie liczby miast
         int neigh = (int) (neighborhoodSize * citiesCounter);
 
-        for(int iter = 0; iter < iteration; iter++) {                       //liczba iteracji
+        for(int iter = 0; iter < iterations; iter++) {                      //liczba iteracji
             sort2tables(beeScoutResults, searchPoints);                     //sort po dzialaniu
             for(int btrplcs = 0; btrplcs < betterPlaces; btrplcs++)
                 for (int j = 0; j < beesSentToBetterPlaces; j++) {
@@ -256,7 +250,7 @@ public class BeesAlgo {
         for(int i = 0; i < scoutBees-1; i++)
             for (int j = 0; j < scoutBees - 1; j++)
                 if (sortingData[j] > sortingData[j + 1]) {          //warunek == wartosc funkcji celu
-                    swapDoubleTable(j, j + 1, sortingData);                    //swap jednowymiarowej z wartosciami funkcji celu
+                    swapDoubleTable(j, j + 1, sortingData);         //swap jednowymiarowej z wartosciami funkcji celu
                     complicatedSwap(j, j + 1, additionalTable);     //swap dwuwymiarowej z kolejnoscia miast
                 }
     }
@@ -301,22 +295,4 @@ public class BeesAlgo {
         long tmp = Math.round(value);
         return (double) tmp / factor;
     }
-
-    /*public int random(double high, double low) {
-        Random generator = new Random();
-        if(integerize) return (generator.nextInt((int) high - (int) low) + (int) low);
-        double range = high-low+1;
-        double fraction = range*generator.nextDouble();
-        return(fraction+low);
-    }
-
-    public double optimalValue(){
-        return(optimalPoint[var]);
-    }
-
-    public double[] optimalPoint(){
-        double[] result = new double[var];
-        System.arraycopy(optimalPoint, 0, result, 0, var);
-        return(result);
-    }*/
 }
