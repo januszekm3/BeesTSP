@@ -158,6 +158,9 @@ public class BeesGUI {
         // reaction for click START button
         startingButton.addActionListener(e -> {
             if (e.getSource() == startingButton) {          // if START button was clicked
+                // clearing previous chart
+                chartPanel.removeAll();
+                chartPanel.updateUI();
                 // loading parameters
                 neighborhoodSize[0] = Double.parseDouble(text1.getText());
                 beesSentToBetterPlaces[0] = Integer.parseInt(text2.getText());
