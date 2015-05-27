@@ -20,6 +20,8 @@ public class BeesAlgo {
 
     private int cities [][];
 
+    private double bestResultPerIter [];
+
     private double neighborhoodSize;         // rozmiar sasiedztwa(%) [0,1]
     private double distances [][];
 
@@ -144,7 +146,7 @@ public class BeesAlgo {
 
     public void run() {
         int[][] searchPoints = new int[scoutBees][var + 1];
-
+        bestResultPerIter  = new double [iterations];
         //tablica wynikow funkcji celu z randomowych pszczol zwiadowcow
         double [] beeScoutResults = new double[scoutBees];
         for (int i = 0; i < scoutBees; i++) {
@@ -162,8 +164,9 @@ public class BeesAlgo {
         //przeliczenie procentowego sasiedztwa na sasiedztwo w formie liczby miast
         int neigh = (int) (neighborhoodSize * citiesCounter);
 
+        sort2tables(beeScoutResults, searchPoints);
         for(int iter = 0; iter < iterations; iter++) {                      //liczba iteracji
-            sort2tables(beeScoutResults, searchPoints);                     //sort po dzialaniu
+
             for(int btrplcs = 0; btrplcs < betterPlaces; btrplcs++)
                 for (int j = 0; j < beesSentToBetterPlaces; j++) {
                     int[] operativeVector = new int[citiesCounter];         //vector do operowania swapami
@@ -223,6 +226,8 @@ public class BeesAlgo {
                             beeScoutResults[chsplcs] = newValue;            //zapis do beeScoutResults nowego wyniku
                         }
                 }
+            sort2tables(beeScoutResults, searchPoints);                     //sort po dzialaniu
+            bestResultPerIter[iter] = beeScoutResults[0];
         }
 
         System.out.println("\nFinal, sorted results:");
@@ -287,6 +292,8 @@ public class BeesAlgo {
     public double getBestResult() {
         return round(bestResult, 2);
     }
+
+    public double[] getBestResultPerIter() { return bestResultPerIter; }
 
     public static double round(double value, int places) {
         if (places < 0) throw new IllegalArgumentException();

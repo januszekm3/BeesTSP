@@ -4,12 +4,21 @@
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartUtilities;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.general.DefaultPieDataset;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
 
 public class BeesGUI {
 
@@ -36,7 +45,7 @@ public class BeesGUI {
         // creating panels in layout
         JPanel gui = new JPanel(new BorderLayout());
         JPanel main = new JPanel(new BorderLayout(10, 120));
-        main.setBorder(new EmptyBorder(50, 10, 120, 120));
+        main.setBorder(new EmptyBorder(50, 30, 80, 120));
         frame.setContentPane(gui);
         JPanel panel1 = new JPanel(new GridLayout(0, 1));
         JPanel panel2 = new JPanel(new GridLayout(0, 1));
@@ -49,7 +58,7 @@ public class BeesGUI {
 
         // fields for file and FileChooser
         JLabel path = new JLabel();                             // field for file name
-        final String[] s = new String[1];
+        final String[] s = new String[2];
 
         // Choosing a file
         JLabel fileLabel = new JLabel("Choose a file");
@@ -60,17 +69,18 @@ public class BeesGUI {
             openFile.showOpenDialog(null);
             path.setText(openFile.getSelectedFile().getName());
             s[0] = openFile.getSelectedFile().getAbsolutePath();
+            s[1] = openFile.getSelectedFile().getName();
         });
 
         // layout for future charts
         gui.add(main, BorderLayout.WEST);
-        JPanel chartPanel = new JPanel(new BorderLayout());
-        gui.add(chartPanel, BorderLayout.EAST);
+        JPanel chartPanel = new JPanel(new GridLayout(0, 1));
+        gui.add(chartPanel, BorderLayout.CENTER);
 
         // loading bee's image
-        BufferedImage myImage = ImageIO.read(new File("C:\\Users\\Janusz\\IdeaProjects\\BeesTSP\\TSPLIB\\Bee.png"));
-        JLabel pictureLabel = new JLabel(new ImageIcon(myImage));
-        main.add(pictureLabel, BorderLayout.NORTH);
+        //BufferedImage myImage = ImageIO.read(new File("C:\\Users\\Tomasz\\IdeaProjects\\BeesTSP\\images.jpg"));
+        //JLabel pictureLabel = new JLabel(new ImageIcon(myImage));
+        //main.add(pictureLabel, BorderLayout.NORTH);
 
         // Creating arguments' labels
         Label label1 = new Label("Neighbourhood size");
@@ -87,10 +97,8 @@ public class BeesGUI {
         JTextField text6 = new JTextField(2);
         Label label7 = new Label("Scout bees");
         JTextField text7 = new JTextField(2);
-        JLabel chart = new JLabel("CHART");
 
-        // adding labels to panels
-        chartPanel.add(chart, BorderLayout.NORTH);
+        // adding labels to panel
         panel1.add(fileLabel);
         panel1.add(selectedPath);
         panel2.add(chooseFile);
@@ -143,7 +151,7 @@ public class BeesGUI {
         panel4.add(textResult5, BorderLayout.SOUTH);
 
         // showing frame with panels
-        frame.pack();
+        //frame.pack();
         frame.setExtendedState(JFrame.MAXIMIZED_BOTH);      // opening in full screen mode
         frame.setVisible(true);
 
@@ -183,6 +191,41 @@ public class BeesGUI {
                 textResult3.setText(Double.toString(averageResult[0]));
                 textResult4.setText(Double.toString(bestResult[0]));
                 textResult5.setText(Double.toString(time[0]) + " seconds");
+
+                // showing chart
+                XYSeries series = new XYSeries("Solution");
+                for( int i = 1; i < iterations[0]; i++){
+
+                    series.add(i, beesAlgo.getBestResultPerIter()[i]);
+                }
+
+                XYSeriesCollection dataset = new XYSeriesCollection();
+                dataset.addSeries(series);
+
+                JFreeChart chart1 = ChartFactory.createXYLineChart(
+                        s[1] + " chart",
+                        "Iterations",
+                        "Target function",
+                        dataset,
+                        PlotOrientation.VERTICAL,
+                        true,
+                        true,
+                        false
+                );
+                try {
+                    ChartUtilities.saveChartAsJPEG(new File("E:\\Semestr VI\\Badania operacyjne\\BeesTSP_new\\chart.jpg"), chart1, 800, 500);
+                } catch (IOException e1) {
+                    System.err.println("Problem occured while creating chart.");
+                }
+                BufferedImage myImage = null;
+                try {
+                    myImage = ImageIO.read(new File("E:\\Semestr VI\\Badania operacyjne\\BeesTSP_new\\chart.jpg"));
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+                JLabel pictureLabel = new JLabel(new ImageIcon(myImage));
+                chartPanel.add(pictureLabel);
+
             }
         });
     }
