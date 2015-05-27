@@ -4,7 +4,6 @@
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -16,7 +15,6 @@ import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
@@ -77,14 +75,16 @@ public class BeesGUI {
         JPanel chartPanel = new JPanel(new GridLayout(0, 1));
         gui.add(chartPanel, BorderLayout.CENTER);
 
-        // loading bee's image
-        //BufferedImage myImage = ImageIO.read(new File("C:\\Users\\Tomasz\\IdeaProjects\\BeesTSP\\images.jpg"));
-        //JLabel pictureLabel = new JLabel(new ImageIcon(myImage));
-        //main.add(pictureLabel, BorderLayout.NORTH);
-
         // Creating arguments' labels
         Label label1 = new Label("Neighbourhood size");
-        JTextField text1 = new JTextField(2);
+
+        //Spinner for changing option in Neighbourhood size
+        JSpinner text1 = new JSpinner(new SpinnerNumberModel(0.0, 0.0, 1.0, 0.1));      // (startOption, left, right, step)
+        JComponent editor = text1.getEditor();
+        if (editor instanceof JSpinner.DefaultEditor) {
+            JSpinner.DefaultEditor spinnerEditor = (JSpinner.DefaultEditor)editor;
+            spinnerEditor.getTextField().setHorizontalAlignment(JTextField.LEFT);
+        }
         Label label2 = new Label("Bees sent to better places");
         JTextField text2 = new JTextField(2);
         Label label3 = new Label("Bees sent to other places");
@@ -162,7 +162,7 @@ public class BeesGUI {
                 chartPanel.removeAll();
                 chartPanel.updateUI();
                 // loading parameters
-                neighborhoodSize[0] = Double.parseDouble(text1.getText());
+                neighborhoodSize[0] = (Double)text1.getValue();
                 beesSentToBetterPlaces[0] = Integer.parseInt(text2.getText());
                 beesSentToOtherPlaces[0] = Integer.parseInt(text3.getText());
                 betterPlaces[0] = Integer.parseInt(text4.getText());
@@ -197,7 +197,7 @@ public class BeesGUI {
 
                 // showing chart
                 XYSeries series = new XYSeries("Solution");
-                for( int i = 1; i < iterations[0]; i++){
+                for( int i = 1; i < iterations[0]; i++){                    // creating series of data, x=iterations, y=target function
 
                     series.add(i, beesAlgo.getBestResultPerIter()[i]);
                 }
@@ -206,17 +206,17 @@ public class BeesGUI {
                 dataset.addSeries(series);
 
                 JFreeChart chart1 = ChartFactory.createXYLineChart(
-                        s[1] + " chart",
-                        "Iterations",
-                        "Target function",
-                        dataset,
-                        PlotOrientation.VERTICAL,
-                        true,
-                        true,
-                        false
+                        s[1] + " chart",                                    // title
+                        "Iterations",                                       // x series label
+                        "Target function",                                  // y series label
+                        dataset,                                            // dataset
+                        PlotOrientation.VERTICAL,                           // Plot Orientation
+                        true,                                               // Show legend
+                        true,                                               // use tooltips
+                        false                                               // configure chart to generate urls
                 );
                 try {
-                    ChartUtilities.saveChartAsJPEG(new File("E:\\Semestr VI\\Badania operacyjne\\BeesTSP_new\\chart.jpg"), chart1, 800, 500);
+                    ChartUtilities.saveChartAsJPEG(new File("E:\\Semestr VI\\Badania operacyjne\\BeesTSP_new\\chart.jpg"), chart1, 800, 500);   // saving chart as an image
                 } catch (IOException e1) {
                     System.err.println("Problem occured while creating chart.");
                 }
@@ -226,7 +226,7 @@ public class BeesGUI {
                 } catch (IOException e1) {
                     e1.printStackTrace();
                 }
-                JLabel pictureLabel = new JLabel(new ImageIcon(myImage));
+                JLabel pictureLabel = new JLabel(new ImageIcon(myImage));       // getting the chart
                 chartPanel.add(pictureLabel);
 
             }
