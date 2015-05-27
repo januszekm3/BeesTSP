@@ -151,7 +151,7 @@ public class BeesGUI {
         panel4.add(textResult5, BorderLayout.SOUTH);
 
         // showing frame with panels
-        //frame.pack();
+        // frame.pack();
         frame.setExtendedState(JFrame.MAXIMIZED_BOTH);      // opening in full screen mode
         frame.setVisible(true);
 
