@@ -11,7 +11,7 @@ public class BeesAlgo {
     private int beesSentToOtherPlaces;       // liczba pszczol wyslanych do pozostalych wybranych miejsc
     private int betterPlaces;                // liczba lepszych miejsc
     private int chosenPlaces;                // liczba wybranych miejsc
-    private int iterations;                   // maksymalna liczba iteracji
+    private int iterations;                  // maksymalna liczba iteracji
     private int scoutBees;                   // liczba pszczol zwiadowcow
     private int var;
     private int citiesCounter;
